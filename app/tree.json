@@ -1,0 +1,775 @@
+{
+  "_comment": "Decision tree for A Practitioner's Guide to Modern Panel-Data Causal Inference. Questions are internal nodes; leaves carry method recommendations with chapter deep-links, assumptions, caveats, package, citations, and a minimal code snippet.",
+  "_schema": {
+    "question-node": {
+      "type": "question",
+      "id": "string",
+      "prompt": "string",
+      "help": "string (optional clarification)",
+      "options": [
+        {
+          "label": "string",
+          "next": "node id"
+        }
+      ]
+    },
+    "leaf-node": {
+      "type": "leaf",
+      "id": "string",
+      "title": "string",
+      "chapter": "string (file#anchor)",
+      "primary_method": "string",
+      "alternatives": [
+        "string"
+      ],
+      "assumptions": [
+        "string"
+      ],
+      "caveats": [
+        "string"
+      ],
+      "package": "string",
+      "citation_keys": [
+        "string"
+      ],
+      "code": "string",
+      "flags": {
+        "binary_only": "boolean",
+        "heterogeneity_robust": "boolean",
+        "no_dedicated_package": "boolean"
+      }
+    }
+  },
+  "root": "q_n_treated",
+  "nodes": {
+    "q_n_treated": {
+      "type": "question",
+      "id": "q_n_treated",
+      "prompt": "How many units are ever treated in your panel?",
+      "help": "Count units that receive the treatment at any point, not treated unit-periods.",
+      "options": [
+        {
+          "label": "1",
+          "next": "leaf_scm"
+        },
+        {
+          "label": "2–9",
+          "next": "q_few_binary_cts"
+        },
+        {
+          "label": "10 or more",
+          "next": "q_periods"
+        },
+        {
+          "label": "All units are treated",
+          "next": "q_all_third_dim"
+        }
+      ]
+    },
+    "q_few_binary_cts": {
+      "type": "question",
+      "id": "q_few_binary_cts",
+      "prompt": "Is the treatment binary or continuous?",
+      "options": [
+        {
+          "label": "Binary",
+          "next": "leaf_synthdid_few"
+        },
+        {
+          "label": "Continuous dose",
+          "next": "leaf_fect_few_cts"
+        }
+      ]
+    },
+    "q_periods": {
+      "type": "question",
+      "id": "q_periods",
+      "prompt": "How many time periods do you observe?",
+      "options": [
+        {
+          "label": "Exactly 2",
+          "next": "q_2p_binary_cts"
+        },
+        {
+          "label": "More than 2",
+          "next": "q_absorbing"
+        }
+      ]
+    },
+    "q_2p_binary_cts": {
+      "type": "question",
+      "id": "q_2p_binary_cts",
+      "prompt": "Is the treatment binary or continuous?",
+      "options": [
+        {
+          "label": "Binary",
+          "next": "leaf_classic_did"
+        },
+        {
+          "label": "Continuous dose",
+          "next": "leaf_continuous_2p"
+        }
+      ]
+    },
+    "q_absorbing": {
+      "type": "question",
+      "id": "q_absorbing",
+      "prompt": "Is the treatment absorbing (once a unit is treated, it stays treated)?",
+      "help": "Absorbing means no switching off. A minimum-wage increase is absorbing; a tax rate that rises and falls is not.",
+      "options": [
+        {
+          "label": "Yes (absorbing)",
+          "next": "q_staggered"
+        },
+        {
+          "label": "No (non-absorbing / reversible / switchers)",
+          "next": "q_binary_cts_nonabs"
+        }
+      ]
+    },
+    "q_staggered": {
+      "type": "question",
+      "id": "q_staggered",
+      "prompt": "Do different units adopt treatment at different times (staggered adoption)?",
+      "options": [
+        {
+          "label": "Yes, staggered cohorts",
+          "next": "q_binary_cts_staggered"
+        },
+        {
+          "label": "No, all treated units adopt at the same date",
+          "next": "q_binary_cts_single_timing"
+        }
+      ]
+    },
+    "q_binary_cts_staggered": {
+      "type": "question",
+      "id": "q_binary_cts_staggered",
+      "prompt": "Is the treatment binary or continuous?",
+      "options": [
+        {
+          "label": "Binary",
+          "next": "q_covariates_staggered"
+        },
+        {
+          "label": "Continuous dose",
+          "next": "leaf_continuous_staggered"
+        }
+      ]
+    },
+    "q_covariates_staggered": {
+      "type": "question",
+      "id": "q_covariates_staggered",
+      "prompt": "Do you want to condition on covariates to make parallel trends more plausible?",
+      "help": "Choose yes if treated and control units differ on observables that plausibly drive differential trends (e.g. baseline income, sector).",
+      "options": [
+        {
+          "label": "Yes — condition on covariates",
+          "next": "leaf_cs_covariates"
+        },
+        {
+          "label": "No — unconditional parallel trends is defensible",
+          "next": "q_stacked_applicable"
+        }
+      ]
+    },
+    "q_stacked_applicable": {
+      "type": "question",
+      "id": "q_stacked_applicable",
+      "prompt": "Do you want to stay in familiar TWFE syntax while still getting clean never-treated-or-not-yet-treated comparisons?",
+      "help": "Stacked DiD (Cengiz et al. 2019; Wing et al. 2024) builds cohort-specific 2×2 sub-panels and stacks them. Requires binary treatment and cohort sizes large enough to support matching windows.",
+      "options": [
+        {
+          "label": "Yes — stacked DiD",
+          "next": "leaf_stacked"
+        },
+        {
+          "label": "No — a dedicated heterogeneity-robust estimator is fine",
+          "next": "leaf_cs"
+        }
+      ]
+    },
+    "q_binary_cts_single_timing": {
+      "type": "question",
+      "id": "q_binary_cts_single_timing",
+      "prompt": "Is the treatment binary or continuous?",
+      "options": [
+        {
+          "label": "Binary",
+          "next": "leaf_twfe_single_timing"
+        },
+        {
+          "label": "Continuous dose",
+          "next": "leaf_continuous_single_timing"
+        }
+      ]
+    },
+    "q_binary_cts_nonabs": {
+      "type": "question",
+      "id": "q_binary_cts_nonabs",
+      "prompt": "Is the treatment binary or continuous?",
+      "options": [
+        {
+          "label": "Binary switchers / reversals",
+          "next": "leaf_fect_nonabs"
+        },
+        {
+          "label": "Continuous dose that varies over time",
+          "next": "leaf_fect_nonabs_cts"
+        }
+      ]
+    },
+    "q_all_third_dim": {
+      "type": "question",
+      "id": "q_all_third_dim",
+      "prompt": "All units are exposed to the treatment at the same time. Do you have an extra source of variation?",
+      "help": "With no untreated contrast, DiD is not identified unless you have either (a) a baseline factor that determines how intensely each unit is exposed, or (b) an ineligible subgroup that the treatment cannot affect.",
+      "options": [
+        {
+          "label": "A baseline factor varies exposure across units (e.g. pre-shock intensity)",
+          "next": "leaf_factorial_did"
+        },
+        {
+          "label": "An ineligible subgroup exists (e.g. age cutoff, jurisdiction, sector)",
+          "next": "leaf_ddd"
+        },
+        {
+          "label": "Neither — just before/after for everyone",
+          "next": "leaf_not_identified"
+        }
+      ]
+    },
+    "leaf_scm": {
+      "type": "leaf",
+      "id": "leaf_scm",
+      "title": "Synthetic control family",
+      "chapter": "05-one-treated-unit.html#sec-synth",
+      "primary_method": "Synthetic control (Abadie, Diamond & Hainmueller)",
+      "alternatives": [
+        "Augmented SCM (`augsynth`) — for imperfect pre-fit",
+        "Synthetic DiD (`synthdid`) — combines donor weights with DiD's additive-shift robustness",
+        "`scpi` — prediction intervals / uncertainty quantification for SCM"
+      ],
+      "assumptions": [
+        "Stable factor structure across donors and treated unit",
+        "Adequate pre-treatment fit between synthetic and actual outcomes",
+        "No anticipation",
+        "Donor pool not itself affected by the treatment",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "Placebo inference is the classical default; `scpi` offers proper prediction intervals",
+        "`augsynth` is the right choice when convex-hull SCM cannot match pre-period"
+      ],
+      "package": "Synth, augsynth, synthdid, scpi",
+      "citation_keys": [
+        "Abadie2010",
+        "BenMichael2021",
+        "Arkhangelsky2021",
+        "Cattaneo2021"
+      ],
+      "code": "library(Synth)\n# See ?dataprep; then synth(data.prep.obj) for weights and path()",
+      "flags": {
+        "binary_only": false,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_synthdid_few": {
+      "type": "leaf",
+      "id": "leaf_synthdid_few",
+      "title": "Synthetic DiD (few treated units)",
+      "chapter": "05-one-treated-unit.html#sec-synthdid",
+      "primary_method": "Synthetic DiD (Arkhangelsky et al.)",
+      "alternatives": [
+        "`augsynth` or `scpi` with staggered-adoption option",
+        "`fect` (IFE mode) if baseline factors are time-varying"
+      ],
+      "assumptions": [
+        "Low-rank latent-factor structure",
+        "Adequate donor pool",
+        "No anticipation",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "With very few treated units, inference relies on placebo permutation",
+        "Time and unit weights together soften sensitivity to level shifts"
+      ],
+      "package": "synthdid",
+      "citation_keys": [
+        "Arkhangelsky2021",
+        "BenMichael2021",
+        "Liu2024"
+      ],
+      "code": "library(synthdid)\nsetup <- panel.matrices(df, unit = 'id', time = 'year',\n                        outcome = 'y', treatment = 'D')\nsdid <- synthdid_estimate(setup$Y, setup$N0, setup$T0)\nsummary(sdid)",
+      "flags": {
+        "binary_only": false,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_fect_few_cts": {
+      "type": "leaf",
+      "id": "leaf_fect_few_cts",
+      "title": "Continuous-dose treatment with few treated units",
+      "chapter": "08-continuous-treatment.html#sec-cgbsa-continuous",
+      "primary_method": "Callaway, Goodman-Bacon & Sant'Anna (2024) `did` continuous branch, applied cohort by cohort. With 2–9 treated units the `ATT(d|d)` level curve is the main estimand; the `ATT'(d|d)` marginal curve is rarely well-powered",
+      "alternatives": [
+        "Dose-binned synthetic control via `Synth` or `augsynth` (case-by-case)",
+        "`synthdid` with a binarized dose (above/below median) as a robustness check"
+      ],
+      "assumptions": [
+        "Level effects `ATT(d|d)`: weak parallel trends — untreated potential outcomes evolve in parallel across dose levels",
+        "Strong PT for the marginal curve — often too strong with few treated units; report only the level curve if so",
+        "No anticipation of the treatment or its dose",
+        "Overlap across doses in the covariate and outcome support",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "`fect` and related counterfactual-panel estimators assume a binary treatment — they are only appropriate here if you binarize the dose or compare dose levels",
+        "Report the full `ATT(d|d)` level curve, not a single scalar; add the `ATT'(d|d)` marginal curve when strong parallel trends is defensible",
+        "Few treated units + continuous dose is a thin corner; report diagnostics heavily and consider dose bins"
+      ],
+      "package": "did (continuous branch), augsynth, synthdid",
+      "citation_keys": [
+        "CallawayGBSA2024",
+        "BenMichael2021",
+        "Arkhangelsky2021"
+      ],
+      "code": "# Callaway/Goodman-Bacon/Sant'Anna (2024) continuous-treatment workflow,\n# applied cohort by cohort. With only 2–9 treated units, inference is thin —\n# pair with dose-binned synthetic control as a sanity check.",
+      "flags": {
+        "binary_only": false,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_classic_did": {
+      "type": "leaf",
+      "id": "leaf_classic_did",
+      "title": "Classic 2×2 DiD",
+      "chapter": "02-classic-did.html",
+      "primary_method": "Two-period TWFE (identical to first-difference OLS and non-parametric difference-in-means)",
+      "alternatives": [
+        "Doubly Robust DiD (`DRDID`) if you want to condition on covariates",
+        "Non-parametric difference-in-means (exactly equivalent)"
+      ],
+      "assumptions": [
+        "Parallel trends in untreated potential outcomes",
+        "SUTVA (no spillovers, stable units, no hidden treatment variants)",
+        "No anticipation in the pre-period"
+      ],
+      "caveats": [
+        "With 2 periods and binary treatment, TWFE and first-differences are algebraically equivalent",
+        "Consider `HonestDiD` (Rambachan & Roth) for sensitivity bounds on the parallel-trends assumption"
+      ],
+      "package": "fixest",
+      "citation_keys": [
+        "Angrist2009",
+        "Roth2023"
+      ],
+      "code": "library(fixest)\nfeols(y ~ post_treat | id + time, data = df)",
+      "flags": {
+        "binary_only": true,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_continuous_2p": {
+      "type": "leaf",
+      "id": "leaf_continuous_2p",
+      "title": "Continuous-dose 2×2 DiD",
+      "chapter": "08-continuous-treatment.html#sec-cgbsa-continuous",
+      "primary_method": "Callaway, Goodman-Bacon & Sant'Anna (2024) `did` continuous branch. Report the level effect `ATT(d|d)` (dose $d$ vs no treatment, weak PT) and, when strong PT is defensible, the marginal effect `ATT'(d|d)` (dose-response derivative)",
+      "alternatives": [
+        "Dose-binned 2×2 DiD as a descriptive first pass",
+        "Smoothed `ATT(d|d)` curve via kernel regression of 2×2 contrasts on dose"
+      ],
+      "assumptions": [
+        "Level effects `ATT(d|d)`: weak parallel trends — untreated potential outcomes evolve in parallel across dose levels",
+        "Marginal / dose-response effects `ATT'(d|d)`: strong parallel trends — the counterfactual trend is invariant to the realized dose",
+        "No anticipation of the treatment or its dose",
+        "Overlap across doses in the covariate and outcome support",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "A TWFE coefficient on a `post × dose` interaction is neither the level nor the marginal effect under heterogeneity — it is a dose-weighted average whose weights can be negative",
+        "Report the full `ATT(d|d)` level curve, not a single scalar; add the `ATT'(d|d)` marginal curve when strong parallel trends is defensible",
+        "With only two periods, the level and marginal curves are noisy — report pointwise and uniform confidence bands"
+      ],
+      "package": "did (continuous-treatment branch)",
+      "citation_keys": [
+        "CallawayGBSA2024"
+      ],
+      "code": "# Continuous-treatment DiD following Callaway, Goodman-Bacon, Sant'Anna (2024)\n# See https://pedrohcgs.github.io/posts/ for the canonical workflow",
+      "flags": {
+        "binary_only": false,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_twfe_single_timing": {
+      "type": "leaf",
+      "id": "leaf_twfe_single_timing",
+      "title": "Two-way fixed effects with common treatment timing",
+      "chapter": "02-classic-did.html",
+      "primary_method": "TWFE DiD and event-study around the common adoption date with unit and time fixed effects are the simplest estimator, although any other heterogeneity-robust estimators work too. ",
+      "alternatives": [
+        "Doubly Robust DiD if covariates support conditional parallel trends"
+      ],
+      "assumptions": [
+        "Parallel trends in untreated outcomes",
+        "No anticipation",
+        "SUTVA"
+      ],
+      "caveats": [
+        "With common timing and binary treatment TWFE is unbiased under parallel trends — heterogeneity-robust estimators are not strictly required",
+        "If any units adopt at different times, move to the staggered branch"
+      ],
+      "package": "fixest",
+      "citation_keys": [
+        "Angrist2009",
+        "Roth2023"
+      ],
+      "code": "library(fixest)\nfeols(y ~ i(time, treat, ref = t_treat - 1) | id + time, data = df)",
+      "flags": {
+        "binary_only": true,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_continuous_single_timing": {
+      "type": "leaf",
+      "id": "leaf_continuous_single_timing",
+      "title": "Continuous-dose DiD with common treatment timing",
+      "chapter": "08-continuous-treatment.html#sec-cgbsa-continuous",
+      "primary_method": "Callaway, Goodman-Bacon & Sant'Anna (2024) `did` continuous branch. Report the level curve `ATT(d|d)` under weak PT; overlay the marginal curve `ATT'(d|d)` when strong PT is defensible",
+      "alternatives": [
+        "Dose-binned event study around the common adoption date",
+        "Parametric dose × post interaction (descriptive only — see caveat)"
+      ],
+      "assumptions": [
+        "Level effects `ATT(d|d)`: weak parallel trends — untreated potential outcomes evolve in parallel across dose levels",
+        "Marginal / dose-response effects `ATT'(d|d)`: strong parallel trends — the counterfactual trend is invariant to the realized dose",
+        "No anticipation of the treatment or its dose",
+        "Overlap across doses in the covariate and outcome support",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "A TWFE coefficient on a `post × dose` interaction is neither the level nor the marginal effect under heterogeneity — it is a dose-weighted average whose weights can be negative",
+        "Report the full `ATT(d|d)` level curve, not a single scalar; add the `ATT'(d|d)` marginal curve when strong parallel trends is defensible",
+        "Pair the estimate with a dose-specific pre-trend plot (analogue of the binary event-study pre-period)"
+      ],
+      "package": "did (continuous-treatment branch)",
+      "citation_keys": [
+        "CallawayGBSA2024"
+      ],
+      "code": "# Callaway, Goodman-Bacon, Sant'Anna (2024) continuous-treatment DiD workflow",
+      "flags": {
+        "binary_only": false,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_cs": {
+      "type": "leaf",
+      "id": "leaf_cs",
+      "title": "Callaway & Sant'Anna group-time ATT",
+      "chapter": "03-staggered-absorbing.html#sec-cs-did",
+      "primary_method": "Callaway & Sant'Anna (`did`)",
+      "alternatives": [
+        "Borusyak, Jaravel & Spiess imputation (`didimputation`)",
+        "Sun & Abraham interaction-weighted event study (`fixest::sunab`)",
+        "Wooldridge ETWFE (`etwfe`)",
+        "de Chaisemartin & D'Haultfœuille DID_l (`DIDmultiplegt_dyn`)"
+      ],
+      "assumptions": [
+        "Parallel trends in untreated outcomes across cohorts",
+        "No anticipation",
+        "SUTVA",
+        "Absorbing treatment"
+      ],
+      "caveats": [
+        "Plain TWFE is biased under staggered adoption with heterogeneous effects — use a heterogeneity-robust estimator by default",
+        "Choose aggregation (dynamic, group, simple) deliberately — they answer different questions"
+      ],
+      "package": "did",
+      "citation_keys": [
+        "Callaway2021",
+        "Sun2021",
+        "Borusyak2024",
+        "Wooldridge2023",
+        "Goodman-Bacon2021"
+      ],
+      "code": "library(did)\natt <- att_gt(yname = 'y', tname = 'year', idname = 'id',\n              gname = 'first_treat', data = df)\naggte(att, type = 'dynamic')",
+      "flags": {
+        "binary_only": true,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_stacked": {
+      "type": "leaf",
+      "id": "leaf_stacked",
+      "title": "Stacked DiD",
+      "chapter": "03-staggered-absorbing.html#sec-stacked",
+      "primary_method": "Stacked DiD (Cengiz et al. 2019; Wing, Freedman & Hollingsworth 2024 weighting correction)",
+      "alternatives": [
+        "Callaway & Sant'Anna group-time ATT",
+        "Borusyak, Jaravel & Spiess imputation"
+      ],
+      "assumptions": [
+        "Parallel trends in untreated outcomes within each matched cohort window",
+        "No anticipation",
+        "Binary treatment",
+        "Absorbing treatment",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "Binary-only — no continuous-treatment variant exists in the current literature",
+        "Wing et al. (2024) correction is required to avoid implicit weighting bias",
+        "Needs cohort sizes large enough to support per-cohort matching windows"
+      ],
+      "package": "fixest (manual stacking)",
+      "citation_keys": [
+        "Cengiz2019",
+        "Wing2024",
+        "Deshpande2019"
+      ],
+      "code": "# 1. For each treated cohort g, build a sub-panel of cohort g + its\n# clean controls (never-treated or not-yet-treated) re-indexed to event time.\n# 2. Stack all sub-panels, estimate TWFE on the stacked data.\nlibrary(fixest)\nfeols(y ~ treat_post | id_cohort + time_cohort, data = stacked)",
+      "flags": {
+        "binary_only": true,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_cs_covariates": {
+      "type": "leaf",
+      "id": "leaf_cs_covariates",
+      "title": "Callaway & Sant'Anna with conditional parallel trends",
+      "chapter": "03-staggered-absorbing.html#sec-cs-did",
+      "primary_method": "`did`::att_gt with xformla (doubly robust by default)",
+      "alternatives": [
+        "`DRDID`::drdid directly on each cohort-time 2×2",
+        "`PanelMatch` with covariate matching"
+      ],
+      "assumptions": [
+        "Conditional parallel trends given covariates",
+        "No anticipation",
+        "Overlap / common support on covariates",
+        "Correct specification of at least one of propensity or outcome model (doubly robust)",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "Covariates must be pre-treatment or time-invariant — post-treatment covariates are bad controls",
+        "Pair with `HonestDiD` sensitivity analysis"
+      ],
+      "package": "did, DRDID",
+      "citation_keys": [
+        "Callaway2021",
+        "SantAnna2020",
+        "Rambachan2023"
+      ],
+      "code": "library(did)\natt <- att_gt(yname = 'y', tname = 'year', idname = 'id',\n              gname = 'first_treat', xformla = ~ x1 + x2,\n              data = df, est_method = 'dr')\naggte(att, type = 'dynamic')",
+      "flags": {
+        "binary_only": true,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_continuous_staggered": {
+      "type": "leaf",
+      "id": "leaf_continuous_staggered",
+      "title": "Continuous-dose DiD with staggered adoption",
+      "chapter": "08-continuous-treatment.html#sec-cgbsa-continuous",
+      "primary_method": "Callaway, Goodman-Bacon & Sant'Anna (2024) `did` continuous branch, cohort × dose. Report `ATT(d|d, g, t)` level curves under weak PT and the corresponding marginal curves `ATT'(d|d, g, t)` under strong PT",
+      "alternatives": [
+        "Cohort-specific dose-binned event studies",
+        "de Chaisemartin & D'Haultfœuille continuous variant in `DIDmultiplegt_dyn`"
+      ],
+      "assumptions": [
+        "Level effects `ATT(d|d)`: weak parallel trends — untreated potential outcomes evolve in parallel across dose levels and across cohorts",
+        "Marginal / dose-response effects `ATT'(d|d)`: strong parallel trends — the counterfactual trend is invariant to the realized dose and across cohorts",
+        "No anticipation of the treatment or its dose",
+        "Overlap across doses in the covariate and outcome support, including within each cohort",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "Stacked DiD, fuzzy DiD, and most DID-IV variants have no binary-free analogue here",
+        "A TWFE coefficient on a `post × dose` interaction is neither the level nor the marginal effect under heterogeneity — it is a dose-weighted average whose weights can be negative — this is especially severe with staggered adoption",
+        "Report cohort heterogeneity in the level and marginal curves separately"
+      ],
+      "package": "did (continuous-treatment branch), DIDmultiplegt_dyn",
+      "citation_keys": [
+        "CallawayGBSA2024",
+        "Chaisemartin2022"
+      ],
+      "code": "# Callaway/Goodman-Bacon/Sant'Anna (2024) continuous + staggered workflow",
+      "flags": {
+        "binary_only": false,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_fect_nonabs": {
+      "type": "leaf",
+      "id": "leaf_fect_nonabs",
+      "title": "Non-absorbing binary treatment — fect / PanelMatch / DIDmultiplegt_dyn",
+      "chapter": "04-nonabsorbing.html#sec-fect",
+      "primary_method": "`fect` (IFE or matrix completion) for model-based counterfactuals, or `DIDmultiplegt_dyn` (DID_M / DID_l) for non-parametric switcher aggregation",
+      "alternatives": [
+        "`PanelMatch` (Imai, Kim & Wang) for matching on treatment histories",
+        "`gsynth` (now a wrapper around `fect`)"
+      ],
+      "assumptions": [
+        "Low-rank outcome structure (`fect` IFE/MC) OR sequential ignorability on histories (`PanelMatch`) OR parallel trends between switchers and stable units (`DIDmultiplegt_dyn`)",
+        "Overlap in treatment histories",
+        "No anticipation",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "Callaway/Sant'Anna and Borusyak-style imputation assume absorption and are inappropriate when treatment switches off",
+        "`fect` is diagnostic-heavy — plot residuals and placebo tests before reading the ATT"
+      ],
+      "package": "fect, PanelMatch, DIDmultiplegt_dyn",
+      "citation_keys": [
+        "Liu2024",
+        "Imai2021",
+        "Chaisemartin2022"
+      ],
+      "code": "library(fect)\nfit <- fect(Y ~ D, data = df, index = c('id','year'),\n            method = 'ife', se = TRUE)\nplot(fit, type = 'counterfactual')",
+      "flags": {
+        "binary_only": true,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_fect_nonabs_cts": {
+      "type": "leaf",
+      "id": "leaf_fect_nonabs_cts",
+      "title": "Non-absorbing continuous treatment — research frontier",
+      "chapter": "04-nonabsorbing.html#sec-didmultiplegt",
+      "primary_method": "`DIDmultiplegt_dyn` continuous-treatment option. Focus on the level contrast `ATT(d|d)` at observed doses; marginal effects `ATT'(d|d)` require strong PT that is rarely defensible with switchers",
+      "alternatives": [
+        "Case-by-case reframing as dose-binned switchers",
+        "Binarize the dose (e.g. above/below median) and use `fect` for a robustness check — `fect` itself cannot consume a continuous treatment"
+      ],
+      "assumptions": [
+        "Level effects `ATT(d|d)`: weak parallel trends — untreated potential outcomes evolve in parallel across dose levels, across dose-change trajectories",
+        "Marginal / dose-response effects `ATT'(d|d)`: strong parallel trends — the counterfactual trend is invariant to the realized dose — generally implausible under reversals",
+        "No anticipation of the treatment or its dose",
+        "Overlap in doses both across and within switchers",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "This corner is genuinely thin in the 2026 literature — expect to justify the estimand (level or marginal?) carefully",
+        "`fect` and other counterfactual-panel estimators assume binary treatment; they are not primary tools for continuous non-absorbing dose",
+        "Document the exact dose definition and timing in the paper; do not rely on package defaults alone"
+      ],
+      "package": "DIDmultiplegt_dyn",
+      "citation_keys": [
+        "Chaisemartin2022",
+        "Liu2024",
+        "CallawayGBSA2024"
+      ],
+      "code": "# Non-absorbing + continuous is research-frontier. Start with:\nlibrary(DIDmultiplegt)\n# did_multiplegt_dyn(df, 'y', 'id', 'year', 'D', ...)",
+      "flags": {
+        "binary_only": false,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": true
+      }
+    },
+    "leaf_factorial_did": {
+      "type": "leaf",
+      "id": "leaf_factorial_did",
+      "title": "Factorial DiD",
+      "chapter": "07-hybrid-designs.html#sec-ddd",
+      "primary_method": "Factorial DiD exploiting cross-sectional baseline factor × time interaction",
+      "alternatives": [
+        "Intensity-of-treatment DDD if the baseline factor is ordinal",
+        "Shift-share / Bartik-style instrumented DiD if the factor maps to exposure shares"
+      ],
+      "assumptions": [
+        "Baseline factor is pre-determined and exogenous to the treatment timing",
+        "Exclusion restriction: the factor affects outcomes only through the treatment channel",
+        "Parallel trends across levels of the factor",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "When every unit is exposed, plain DiD is not identified — you are relying entirely on the factor for identifying variation",
+        "No dedicated R package; build from `fixest::feols` using factor × post interactions"
+      ],
+      "package": "fixest (no dedicated package)",
+      "citation_keys": [
+        "Xu2026"
+      ],
+      "code": "library(fixest)\n# Factor × post interaction identifies the moderation effect\nfeols(y ~ i(post, factor_level, ref = 0) | id + time, data = df)",
+      "flags": {
+        "binary_only": false,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": true
+      }
+    },
+    "leaf_ddd": {
+      "type": "leaf",
+      "id": "leaf_ddd",
+      "title": "Triple differences (DDD)",
+      "chapter": "07-hybrid-designs.html#sec-ddd",
+      "primary_method": "`triplediff` with DR / IPW / RA options",
+      "alternatives": [
+        "Three-way interaction TWFE (only valid with no covariates and no staggered adoption)",
+        "Cohort-level stacked DDD (manual construction)"
+      ],
+      "assumptions": [
+        "Biases in the two nested 2×2 DiDs cancel (not two separate parallel-trends assumptions)",
+        "Eligible / ineligible partition is pre-determined and stable",
+        "No spillovers from eligible to ineligible group",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "Three-way interaction TWFE can fail under covariates or staggered adoption — use `triplediff`'s DDD-specific estimators",
+        "The estimand changes from ATT to eligible-subgroup ATT or effect modification depending on the design"
+      ],
+      "package": "triplediff",
+      "citation_keys": [
+        "Olden2022",
+        "Clarke2024"
+      ],
+      "code": "library(triplediff)\n# triplediff estimator on a DDD design\ntd <- tddid(y ~ treat * post * eligible | id + time, data = df)\nsummary(td)",
+      "flags": {
+        "binary_only": true,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_not_identified": {
+      "type": "leaf",
+      "id": "leaf_not_identified",
+      "title": "Design not identified by DiD",
+      "chapter": "01-setup.html",
+      "primary_method": "None — DiD requires an untreated contrast",
+      "alternatives": [
+        "Interrupted time series (ITS) for a pre/post description",
+        "Synthetic control if you can construct a donor pool from outside your sample",
+        "Layer on extra leverage: DiD+RDD (cutoff), DID-IV (instrument), DDD (ineligible subgroup), factorial DiD (baseline factor)"
+      ],
+      "assumptions": [
+        "No DiD assumptions suffice here — there is no untreated trend to borrow"
+      ],
+      "caveats": [
+        "A naïve before/after comparison is not a DiD — it is a time-series trend",
+        "If you genuinely have no untreated contrast and no external leverage, DiD is not the right framework"
+      ],
+      "package": "— (see Chapter 7 for hybrid designs)",
+      "citation_keys": [
+        "Roth2023",
+        "Xu2026"
+      ],
+      "code": "# No DiD estimator. See Chapter 7 on hybrid designs (DiD+RDD, DID-IV, DDD, factorial DiD).",
+      "flags": {
+        "binary_only": false,
+        "heterogeneity_robust": false,
+        "no_dedicated_package": true
+      }
+    }
+  }
+}
