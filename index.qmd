@@ -1,16 +1,16 @@
 ---
-title: "A Practitioner's Decision Tree for Panel-Data Causal Inference"
-subtitle: "Answer a handful of questions about your design and get an estimator recommendation with assumptions, caveats, an R package, and minimal code."
+title: "A Practitioner's Decision Tree for Panel-Data Estimators"
+subtitle: "Answer a handful of questions about your design and get an estimator recommendation! Each comes with assumptions, caveats, an R package, and minimal code."
 author:
   - name: Roberto Valli
     affiliation: European University Institute
-date: today
+#date: today
 ---
 
 ## What this is
 
-This site hosts an interactive **decision tree** that recommends a
-causal-inference estimator for panel data. The tree branches on the
+This site hosts an interactive decision tree that guides you to a
+estimator for panel data that suits your application. The tree branches on the
 structure of the design: the number of ever-treated units, treatment
 timing, whether the treatment is absorbing, whether it is binary or
 continuous. Based on your inputs, you land on a leaf with the primary recommended method,
@@ -26,12 +26,6 @@ missing method, or have a suggestion, please
 
 ## The decision tree
 
-::: {.callout-tip}
-## First load is slow
-The tree runs entirely in your browser via WebAssembly. The first load
-takes 10--20 seconds while R bootstraps; refreshing reuses the cache.
-:::
-
 ```{=html}
 <iframe src="tree/"
         style="width:100%; height:820px; border:1px solid #ccc; border-radius:4px;"
@@ -39,6 +33,13 @@ takes 10--20 seconds while R bootstraps; refreshing reuses the cache.
         title="Panel-data decision tree (interactive)">
 </iframe>
 ```
+
+
+::: {.callout-tip}
+## First load is slow
+The tree runs entirely in your browser via WebAssembly. The first load
+takes 10--20 seconds while R bootstraps; refreshing reuses the cache.
+:::
 
 If the embedded version does not load, [open the app in a new tab](tree/).
 
@@ -56,19 +57,6 @@ If the embedded version does not load, [open the app in a new tab](tree/).
    *almost* absorbing, *almost* common timing), walk both branches and
    compare the recommendations. Divergence is informative.
 
-## What the tree branches on
-
-| Question | Why it matters |
-|---|---|
-| **How many units are ever treated?** | One $\Rightarrow$ synthetic-control family. A few $\Rightarrow$ synthetic DiD. Ten or more $\Rightarrow$ standard DiD machinery. All units treated $\Rightarrow$ you need an extra source of variation (a baseline factor, an ineligible subgroup). |
-| **Binary or continuous treatment?** | Continuous-dose designs require a different estimand (a dose-response curve, not a scalar) and different estimators. |
-| **Absorbing or non-absorbing?** | Once-treated-always-treated unlocks Callaway--Sant'Anna, Sun--Abraham, Borusyak imputation, stacked DiD. Switchers / reversals require *fect* or DIDmultiplegt-style estimators. |
-| **Staggered or common timing?** | Heterogeneity-robust estimators are required under staggered adoption; plain TWFE is unbiased only under common timing. |
-| **Conditional or unconditional parallel trends?** | Doubly robust adjustments (Callaway--Sant'Anna with covariates, Sant'Anna--Zhao DR) when treated and control differ on observables that drive trends. |
-
-When the design admits no DiD-style answer (no untreated contrast and no
-extra leverage), the tree says so explicitly --- and points you toward
-the relevant hybrid designs.
 
 ## Citing this tool
 
