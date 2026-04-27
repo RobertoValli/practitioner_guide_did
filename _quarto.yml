@@ -1,0 +1,31 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - "*.qmd"
+
+website:
+  title: "Panel-Data Decision Tree"
+  description: >
+    An interactive decision tree that recommends a causal-inference
+    estimator for panel data based on the structure of your design.
+  navbar:
+    right:
+      - text: "Open the tree in full screen"
+        href: tree/
+        target: _blank
+      - icon: github
+        href: https://github.com/RobertoValli/practitioner_guide_did
+        aria-label: GitHub
+  page-footer:
+    left: "Roberto Valli, EUI --- 2026"
+    right: "[License](https://github.com/RobertoValli/practitioner_guide_did/blob/main/LICENSE)"
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-location: right
+    toc-depth: 2
+    page-layout: article
+    fontsize: 1.05em

@@ -1,0 +1,93 @@
+---
+title: "A Practitioner's Decision Tree for Panel-Data Causal Inference"
+subtitle: "Answer a handful of questions about your design and get an estimator recommendation with assumptions, caveats, an R package, and minimal code."
+author:
+  - name: Roberto Valli
+    affiliation: European University Institute
+date: today
+---
+
+## What this is
+
+This site hosts an interactive **decision tree** that recommends a
+causal-inference estimator for panel data. The tree branches on the
+structure of the design: the number of ever-treated units, treatment
+timing, whether the treatment is absorbing, whether it is binary or
+continuous. Based on your inputs, you land on a leaf with the primary recommended method,
+alternatives, identifying assumptions, caveats, the relevant R package,
+and a minimal code snippet.
+
+The app was built as a heuristic for students working on causal
+inference with panel data, in response to the dizzying pace of the recent
+literature on difference-in-differences-style estimators and their
+extensions. **It is a work in progress** --- if you find a mistake, a
+missing method, or have a suggestion, please
+[open an issue](https://github.com/RobertoValli/practitioner_guide_did/issues).
+
+## The decision tree
+
+::: {.callout-tip}
+## First load is slow
+The tree runs entirely in your browser via WebAssembly. The first load
+takes 10--20 seconds while R bootstraps; refreshing reuses the cache.
+:::
+
+```{=html}
+<iframe src="tree/"
+        style="width:100%; height:820px; border:1px solid #ccc; border-radius:4px;"
+        loading="lazy"
+        title="Panel-data decision tree (interactive)">
+</iframe>
+```
+
+If the embedded version does not load, [open the app in a new tab](tree/).
+
+## How to use it
+
+1. **Answer one question at a time.** Each question narrows the menu of
+   estimators based on the structure of your data. You do not need to
+   know the methods ahead of time.
+2. **Land on a leaf.** Each leaf returns the primary method, alternatives,
+   identifying assumptions, caveats, an R package, and minimal example
+   code.
+3. **Use the breadcrumb at the top** to backtrack one step, or the
+   *Start over* button to reset.
+4. **Compare a few branches.** If your data structure is borderline (e.g.
+   *almost* absorbing, *almost* common timing), walk both branches and
+   compare the recommendations. Divergence is informative.
+
+## What the tree branches on
+
+| Question | Why it matters |
+|---|---|
+| **How many units are ever treated?** | One $\Rightarrow$ synthetic-control family. A few $\Rightarrow$ synthetic DiD. Ten or more $\Rightarrow$ standard DiD machinery. All units treated $\Rightarrow$ you need an extra source of variation (a baseline factor, an ineligible subgroup). |
+| **Binary or continuous treatment?** | Continuous-dose designs require a different estimand (a dose-response curve, not a scalar) and different estimators. |
+| **Absorbing or non-absorbing?** | Once-treated-always-treated unlocks Callaway--Sant'Anna, Sun--Abraham, Borusyak imputation, stacked DiD. Switchers / reversals require *fect* or DIDmultiplegt-style estimators. |
+| **Staggered or common timing?** | Heterogeneity-robust estimators are required under staggered adoption; plain TWFE is unbiased only under common timing. |
+| **Conditional or unconditional parallel trends?** | Doubly robust adjustments (Callaway--Sant'Anna with covariates, Sant'Anna--Zhao DR) when treated and control differ on observables that drive trends. |
+
+When the design admits no DiD-style answer (no untreated contrast and no
+extra leverage), the tree says so explicitly --- and points you toward
+the relevant hybrid designs.
+
+## Citing this tool
+
+If you use the decision tree in teaching or applied work, please cite it as:
+
+> Valli, R. (2026). *A Practitioner's Decision Tree for Panel-Data
+> Causal Inference* \[online application\].
+> <https://robertovalli.github.io/practitioner_guide_did/>
+
+## Acknowledgements
+
+The tree was developed alongside the EUI workshop *Advanced
+Counterfactual Methods for Causal Inference with Panel Data* (Spring
+2026). It draws on the recent econometrics literature, in particular
+the synthesis by [Roth, Sant'Anna, Bilinski & Poe (2023)](https://doi.org/10.1016/j.jeconom.2023.03.008),
+and on the implementation guidance shipped with the R packages it
+recommends.
+
+## License
+
+The app and its content are released under the
+[license in the repository](https://github.com/RobertoValli/practitioner_guide_did/blob/main/LICENSE).
