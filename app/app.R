@@ -60,7 +60,7 @@ ui <- fluidPage(
                            border-radius: 3px; font-size: 0.9em; }
     "))
   ),
-  titlePanel("A Practitioner's Decision Tree for Panel-Data Causal Inference"),
+  titlePanel("A Decision Tree for Panel-Data Estimators"),
   fluidRow(
     column(
       12,

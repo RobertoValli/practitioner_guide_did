@@ -10,7 +10,7 @@ author:
 ## What this is
 
 This site hosts an interactive decision tree that guides you to a
-estimator for panel data that suits your application. The tree branches on the
+estimator for panel data that suits your application. It covers difference-in-differences and synthetic control method, from their simplest applications to hybrid designs and extensions. The tree branches on the
 structure of the design: the number of ever-treated units, treatment
 timing, whether the treatment is absorbing, whether it is binary or
 continuous. Based on your inputs, you land on a leaf with the primary recommended method,

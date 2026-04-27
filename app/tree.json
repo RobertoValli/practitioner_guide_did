@@ -1,5 +1,5 @@
 {
-  "_comment": "Decision tree for A Practitioner's Guide to Modern Panel-Data Causal Inference. Questions are internal nodes; leaves carry method recommendations with chapter deep-links, assumptions, caveats, package, citations, and a minimal code snippet.",
+  "_comment": "Decision tree for Modern Panel-Data Causal Inference. Questions are internal nodes; leaves carry method recommendations with chapter deep-links, assumptions, caveats, package, citations, and a minimal code snippet.",
   "_schema": {
     "question-node": {
       "type": "question",
@@ -160,16 +160,20 @@
     "q_covariates_staggered": {
       "type": "question",
       "id": "q_covariates_staggered",
-      "prompt": "Do you want to condition on covariates to make parallel trends more plausible?",
-      "help": "Choose yes if treated and control units differ on observables that plausibly drive differential trends (e.g. baseline income, sector).",
+      "prompt": "Are parallel trends defensible unconditionally, or only after conditioning on covariates?",
+      "help": "Pre-treatment / time-invariant covariates that predict differential trends (e.g. baseline income, employment sector, ideology) belong to the second branch and feed into doubly robust DiD. Time-varying confounders — whether observed or unobserved — belong to the third branch and call for an interactive-fixed-effects approach. Post-treatment covariates are bad controls; do not condition on them in any branch.",
       "options": [
         {
-          "label": "Yes — condition on covariates",
+          "label": "Yes — unconditional parallel trends are defensible",
+          "next": "q_stacked_applicable"
+        },
+        {
+          "label": "No — credible only conditional on pre-treatment covariates",
           "next": "leaf_cs_covariates"
         },
         {
-          "label": "No — unconditional parallel trends is defensible",
-          "next": "q_stacked_applicable"
+          "label": "No — credible only after absorbing time-varying confounders",
+          "next": "leaf_fect_ife"
         }
       ]
     },
@@ -196,11 +200,31 @@
       "options": [
         {
           "label": "Binary",
-          "next": "leaf_twfe_single_timing"
+          "next": "q_covariates_single_timing"
         },
         {
           "label": "Continuous dose",
           "next": "leaf_continuous_single_timing"
+        }
+      ]
+    },
+    "q_covariates_single_timing": {
+      "type": "question",
+      "id": "q_covariates_single_timing",
+      "prompt": "Are parallel trends defensible unconditionally, or only after conditioning on covariates?",
+      "help": "Same logic as the staggered branch: pre-treatment / time-invariant X feeds DR-DiD; time-varying confounders call for IFE / matrix completion; post-treatment covariates are bad controls.",
+      "options": [
+        {
+          "label": "Yes — unconditional parallel trends are defensible",
+          "next": "leaf_twfe_single_timing"
+        },
+        {
+          "label": "No — credible only conditional on pre-treatment covariates",
+          "next": "leaf_dr_did_single_timing"
+        },
+        {
+          "label": "No — credible only after absorbing time-varying confounders",
+          "next": "leaf_fect_ife"
         }
       ]
     },
@@ -315,7 +339,6 @@
       "chapter": "08-continuous-treatment.html#sec-cgbsa-continuous",
       "primary_method": "Callaway, Goodman-Bacon & Sant'Anna (2024) `did` continuous branch, applied cohort by cohort. With 2–9 treated units the `ATT(d|d)` level curve is the main estimand; the `ATT'(d|d)` marginal curve is rarely well-powered",
       "alternatives": [
-        "Dose-binned synthetic control via `Synth` or `augsynth` (case-by-case)",
         "`synthdid` with a binarized dose (above/below median) as a robustness check"
       ],
       "assumptions": [
@@ -330,7 +353,7 @@
         "Report the full `ATT(d|d)` level curve, not a single scalar; add the `ATT'(d|d)` marginal curve when strong parallel trends is defensible",
         "Few treated units + continuous dose is a thin corner; report diagnostics heavily and consider dose bins"
       ],
-      "package": "did (continuous branch), augsynth, synthdid",
+      "package": "did (continuous branch), synthdid",
       "citation_keys": [
         "CallawayGBSA2024",
         "BenMichael2021",
@@ -348,7 +371,7 @@
       "id": "leaf_classic_did",
       "title": "Classic 2×2 DiD",
       "chapter": "02-classic-did.html",
-      "primary_method": "Two-period TWFE (identical to first-difference OLS and non-parametric difference-in-means)",
+      "primary_method": "Two-period TWFE. In this case, it is exactly equivalent to first-difference OLS and non-parametric difference-in-means.",
       "alternatives": [
         "Doubly Robust DiD (`DRDID`) if you want to condition on covariates",
         "Non-parametric difference-in-means (exactly equivalent)"
@@ -570,6 +593,78 @@
         "Rambachan2023"
       ],
       "code": "library(did)\natt <- att_gt(yname = 'y', tname = 'year', idname = 'id',\n              gname = 'first_treat', xformla = ~ x1 + x2,\n              data = df, est_method = 'dr')\naggte(att, type = 'dynamic')",
+      "flags": {
+        "binary_only": true,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_fect_ife": {
+      "type": "leaf",
+      "id": "leaf_fect_ife",
+      "title": "Interactive fixed effects — fect / synthetic DiD / trajectory balancing",
+      "chapter": "06-parallel-trends.html#sec-ife",
+      "primary_method": "`fect` with interactive fixed effects (IFE) or matrix completion (MC). Latent factors absorb unit-specific trends and time-varying confounders that are correlated with treatment timing.",
+      "alternatives": [
+        "Synthetic DiD (`synthdid`) — unit and time weights soften sensitivity to time-varying shocks",
+        "Trajectory balancing (`tjbal`) — reweights to match entire pre-treatment outcome / covariate trajectories rather than just baseline levels",
+        "`gsynth` — now a wrapper around `fect`"
+      ],
+      "assumptions": [
+        "Low-rank latent-factor structure on untreated outcomes",
+        "Adequate pre-treatment span to identify the factor loadings",
+        "No anticipation",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "Conditioning on observed time-varying X that is itself affected by treatment is a bad-control problem; latent-factor models avoid this by absorbing the confounding rather than conditioning on it",
+        "`fect` is diagnostic-heavy — plot residuals, equivalence test, and placebo-in-time before reading the ATT",
+        "Synthetic DiD shines with few treated units; with many treated cohorts, `fect` is the natural choice"
+      ],
+      "package": "fect, synthdid, tjbal",
+      "citation_keys": [
+        "Liu2024",
+        "Xu2017",
+        "Arkhangelsky2021",
+        "Hazlett2026"
+      ],
+      "code": "library(fect)\nfit <- fect(Y ~ D, data = df, index = c('id','year'),\n            method = 'ife', force = 'two-way', se = TRUE)\nplot(fit, type = 'equiv')           # pre-trend equivalence test\nplot(fit, type = 'counterfactual')",
+      "flags": {
+        "binary_only": true,
+        "heterogeneity_robust": true,
+        "no_dedicated_package": false
+      }
+    },
+    "leaf_dr_did_single_timing": {
+      "type": "leaf",
+      "id": "leaf_dr_did_single_timing",
+      "title": "Doubly robust DiD with common timing",
+      "chapter": "02-classic-did.html#sec-dr-did",
+      "primary_method": "Doubly robust DiD (`DRDID`) applied to the 2×2 around the common adoption date. Reduces to Sant'Anna & Zhao's DR estimator at each event time.",
+      "alternatives": [
+        "`fixest::feols(y ~ i(time, treat, ref = t_treat - 1) + x | id + time)` — TWFE event study with additive covariates (parametric, not doubly robust)",
+        "`did::att_gt(xformla = ~ x)` — works under common timing too; doubly robust by default with `est_method = 'dr'`"
+      ],
+      "assumptions": [
+        "Conditional parallel trends given pre-treatment covariates",
+        "No anticipation",
+        "Overlap / common support on covariates",
+        "Correct specification of at least one of propensity or outcome model (doubly robust)",
+        "SUTVA: no spillovers, stable units, no hidden treatment variants"
+      ],
+      "caveats": [
+        "Covariates must be pre-treatment or strictly time-invariant — post-treatment X is a bad control",
+        "TWFE-with-covariates is parametric and breaks under interaction between covariates and time; DR-DiD avoids this",
+        "Pair with `HonestDiD` sensitivity analysis"
+      ],
+      "package": "DRDID, did, fixest",
+      "citation_keys": [
+        "SantAnna2020",
+        "Callaway2021",
+        "Rambachan2023",
+        "Roth2023"
+      ],
+      "code": "library(DRDID)\n# panel data, common adoption at t_treat\ndr <- drdid(yname = 'y', tname = 'year', idname = 'id',\n            dname = 'treat', xformla = ~ x1 + x2,\n            data = df, panel = TRUE)\nsummary(dr)",
       "flags": {
         "binary_only": true,
         "heterogeneity_robust": true,
