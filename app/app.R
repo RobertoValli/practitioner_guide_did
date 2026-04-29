@@ -130,7 +130,7 @@ server <- function(input, output, session) {
   output$nav_buttons <- renderUI({
     tagList(
       if (length(rv$history) > 0) {
-        actionButton("back", "\u2190 Back")
+        actionButton("back", "Back")
       },
       if (length(rv$history) > 0 || identical(nodes[[rv$current]]$type, "leaf")) {
         actionButton("reset", "Start over", class = "reset-btn")

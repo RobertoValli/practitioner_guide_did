@@ -2,56 +2,49 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "A Practitioner’s Decision Tree for Panel-Data Causal Inference",
+    "title": "A Practitioner’s Decision Tree for Panel-Data Estimators",
     "section": "",
-    "text": "This site hosts an interactive decision tree that recommends a causal-inference estimator for panel data. The tree branches on the structure of the design — the number of ever-treated units, treatment timing, whether the treatment is absorbing, whether it is binary or continuous — and lands on a leaf with the primary recommended method, alternatives, identifying assumptions, caveats, the relevant R package, and a minimal code snippet.\nThe app was built as a heuristic for EUI students working on causal inference with panel data, in response to the dizzying pace of the recent literature on difference-in-differences-style estimators and their extensions. It is a work in progress — if you find a mistake, a missing method, or have a suggestion, please open an issue."
+    "text": "This site hosts an interactive decision tree that guides you to a estimator for panel data that suits your application. It covers difference-in-differences and synthetic control method, from their simplest applications to hybrid designs and extensions. The tree branches on the structure of the design: the number of ever-treated units, treatment timing, whether the treatment is absorbing, whether it is binary or continuous. Based on your inputs, you land on a leaf with the primary recommended method, alternatives, identifying assumptions, caveats, the relevant R package, and a minimal code snippet.\nThe app was built as a heuristic for students working on causal inference with panel data, in response to the dizzying pace of the recent literature on difference-in-differences-style estimators and their extensions. It is a work in progress — if you find a mistake, a missing method, or have a suggestion, please open an issue."
   },
   {
     "objectID": "index.html#what-this-is",
     "href": "index.html#what-this-is",
-    "title": "A Practitioner’s Decision Tree for Panel-Data Causal Inference",
+    "title": "A Practitioner’s Decision Tree for Panel-Data Estimators",
     "section": "",
-    "text": "This site hosts an interactive decision tree that recommends a causal-inference estimator for panel data. The tree branches on the structure of the design — the number of ever-treated units, treatment timing, whether the treatment is absorbing, whether it is binary or continuous — and lands on a leaf with the primary recommended method, alternatives, identifying assumptions, caveats, the relevant R package, and a minimal code snippet.\nThe app was built as a heuristic for EUI students working on causal inference with panel data, in response to the dizzying pace of the recent literature on difference-in-differences-style estimators and their extensions. It is a work in progress — if you find a mistake, a missing method, or have a suggestion, please open an issue."
+    "text": "This site hosts an interactive decision tree that guides you to a estimator for panel data that suits your application. It covers difference-in-differences and synthetic control method, from their simplest applications to hybrid designs and extensions. The tree branches on the structure of the design: the number of ever-treated units, treatment timing, whether the treatment is absorbing, whether it is binary or continuous. Based on your inputs, you land on a leaf with the primary recommended method, alternatives, identifying assumptions, caveats, the relevant R package, and a minimal code snippet.\nThe app was built as a heuristic for students working on causal inference with panel data, in response to the dizzying pace of the recent literature on difference-in-differences-style estimators and their extensions. It is a work in progress — if you find a mistake, a missing method, or have a suggestion, please open an issue."
   },
   {
     "objectID": "index.html#the-decision-tree",
     "href": "index.html#the-decision-tree",
-    "title": "A Practitioner’s Decision Tree for Panel-Data Causal Inference",
+    "title": "A Practitioner’s Decision Tree for Panel-Data Estimators",
     "section": "The decision tree",
-    "text": "The decision tree\n\n\n\n\n\n\nTipFirst load is slow\n\n\n\nThe tree runs entirely in your browser via WebAssembly. The first load takes 10–20 seconds while R bootstraps; refreshing reuses the cache.\n\n\n\n\nIf the embedded version does not load, open the app in a new tab."
+    "text": "The decision tree\n\n\n\n\n\n\n\n\nTipFirst load is slow\n\n\n\nThe tree runs entirely in your browser via WebAssembly. The first load takes 10–20 seconds while R bootstraps; refreshing reuses the cache.\n\n\nIf the embedded version does not load, open the app in a new tab."
   },
   {
     "objectID": "index.html#how-to-use-it",
     "href": "index.html#how-to-use-it",
-    "title": "A Practitioner’s Decision Tree for Panel-Data Causal Inference",
+    "title": "A Practitioner’s Decision Tree for Panel-Data Estimators",
     "section": "How to use it",
     "text": "How to use it\n\nAnswer one question at a time. Each question narrows the menu of estimators based on the structure of your data. You do not need to know the methods ahead of time.\nLand on a leaf. Each leaf returns the primary method, alternatives, identifying assumptions, caveats, an R package, and minimal example code.\nUse the breadcrumb at the top to backtrack one step, or the Start over button to reset.\nCompare a few branches. If your data structure is borderline (e.g. almost absorbing, almost common timing), walk both branches and compare the recommendations. Divergence is informative."
   },
   {
-    "objectID": "index.html#what-the-tree-branches-on",
-    "href": "index.html#what-the-tree-branches-on",
-    "title": "A Practitioner’s Decision Tree for Panel-Data Causal Inference",
-    "section": "What the tree branches on",
-    "text": "What the tree branches on\n\n\n\n\n\n\n\nQuestion\nWhy it matters\n\n\n\n\nHow many units are ever treated?\nOne \\(\\Rightarrow\\) synthetic-control family. A few \\(\\Rightarrow\\) synthetic DiD. Ten or more \\(\\Rightarrow\\) standard DiD machinery. All units treated \\(\\Rightarrow\\) you need an extra source of variation (a baseline factor, an ineligible subgroup).\n\n\nBinary or continuous treatment?\nContinuous-dose designs require a different estimand (a dose-response curve, not a scalar) and different estimators.\n\n\nAbsorbing or non-absorbing?\nOnce-treated-always-treated unlocks Callaway–Sant’Anna, Sun–Abraham, Borusyak imputation, stacked DiD. Switchers / reversals require fect or DIDmultiplegt-style estimators.\n\n\nStaggered or common timing?\nHeterogeneity-robust estimators are required under staggered adoption; plain TWFE is unbiased only under common timing.\n\n\nConditional or unconditional parallel trends?\nDoubly robust adjustments (Callaway–Sant’Anna with covariates, Sant’Anna–Zhao DR) when treated and control differ on observables that drive trends.\n\n\n\nWhen the design admits no DiD-style answer (no untreated contrast and no extra leverage), the tree says so explicitly — and points you toward the relevant hybrid designs."
-  },
-  {
     "objectID": "index.html#citing-this-tool",
     "href": "index.html#citing-this-tool",
-    "title": "A Practitioner’s Decision Tree for Panel-Data Causal Inference",
+    "title": "A Practitioner’s Decision Tree for Panel-Data Estimators",
     "section": "Citing this tool",
     "text": "Citing this tool\nIf you use the decision tree in teaching or applied work, please cite it as:\n\nValli, R. (2026). A Practitioner’s Decision Tree for Panel-Data Causal Inference [online application]. https://robertovalli.github.io/practitioner_guide_did/"
   },
   {
     "objectID": "index.html#acknowledgements",
     "href": "index.html#acknowledgements",
-    "title": "A Practitioner’s Decision Tree for Panel-Data Causal Inference",
+    "title": "A Practitioner’s Decision Tree for Panel-Data Estimators",
     "section": "Acknowledgements",
     "text": "Acknowledgements\nThe tree was developed alongside the EUI workshop Advanced Counterfactual Methods for Causal Inference with Panel Data (Spring 2026). It draws on the recent econometrics literature, in particular the synthesis by Roth, Sant’Anna, Bilinski & Poe (2023), and on the implementation guidance shipped with the R packages it recommends."
   },
   {
     "objectID": "index.html#license",
     "href": "index.html#license",
-    "title": "A Practitioner’s Decision Tree for Panel-Data Causal Inference",
+    "title": "A Practitioner’s Decision Tree for Panel-Data Estimators",
     "section": "License",
     "text": "License\nThe app and its content are released under the license in the repository."
   }

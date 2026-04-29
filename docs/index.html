@@ -7,9 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Roberto Valli">
-<meta name="dcterms.date" content="2026-04-27">
 
-<title>A Practitioner’s Decision Tree for Panel-Data Causal Inference – Panel-Data Decision Tree</title>
+<title>A Practitioner’s Decision Tree for Panel-Data Estimators – Panel-Data Decision Tree</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -73,35 +72,6 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 </head>
 
@@ -150,7 +120,6 @@ window.Quarto = {
   <li><a href="#what-this-is" id="toc-what-this-is" class="nav-link active" data-scroll-target="#what-this-is">What this is</a></li>
   <li><a href="#the-decision-tree" id="toc-the-decision-tree" class="nav-link" data-scroll-target="#the-decision-tree">The decision tree</a></li>
   <li><a href="#how-to-use-it" id="toc-how-to-use-it" class="nav-link" data-scroll-target="#how-to-use-it">How to use it</a></li>
-  <li><a href="#what-the-tree-branches-on" id="toc-what-the-tree-branches-on" class="nav-link" data-scroll-target="#what-the-tree-branches-on">What the tree branches on</a></li>
   <li><a href="#citing-this-tool" id="toc-citing-this-tool" class="nav-link" data-scroll-target="#citing-this-tool">Citing this tool</a></li>
   <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">Acknowledgements</a></li>
   <li><a href="#license" id="toc-license" class="nav-link" data-scroll-target="#license">License</a></li>
@@ -162,8 +131,8 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">A Practitioner’s Decision Tree for Panel-Data Causal Inference</h1>
-<p class="subtitle lead">Answer a handful of questions about your design and get a method recommendation with assumptions, caveats, an R package, and minimal code.</p>
+<h1 class="title">A Practitioner’s Decision Tree for Panel-Data Estimators</h1>
+<p class="subtitle lead">Answer a handful of questions about your design and get an estimator recommendation! Each comes with assumptions, caveats, an R package, and minimal code.</p>
 </div>
 
 
@@ -184,12 +153,6 @@ window.Quarto = {
 <div class="quarto-title-meta">
 
       
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">April 27, 2026</p>
-    </div>
-  </div>
   
     
   </div>
@@ -201,11 +164,13 @@ window.Quarto = {
 
 <section id="what-this-is" class="level2">
 <h2 class="anchored" data-anchor-id="what-this-is">What this is</h2>
-<p>This site hosts an interactive <strong>decision tree</strong> that recommends a causal-inference estimator for panel data. The tree branches on the structure of the design — the number of ever-treated units, treatment timing, whether the treatment is absorbing, whether it is binary or continuous — and lands on a leaf with the primary recommended method, alternatives, identifying assumptions, caveats, the relevant R package, and a minimal code snippet.</p>
-<p>The app was built as a heuristic for EUI students working on causal inference with panel data, in response to the dizzying pace of the recent literature on difference-in-differences-style estimators and their extensions. <strong>It is a work in progress</strong> — if you find a mistake, a missing method, or have a suggestion, please <a href="https://github.com/RobertoValli/practitioner_guide_did/issues">open an issue</a>.</p>
+<p>This site hosts an interactive decision tree that guides you to a estimator for panel data that suits your application. It covers difference-in-differences and synthetic control method, from their simplest applications to hybrid designs and extensions. The tree branches on the structure of the design: the number of ever-treated units, treatment timing, whether the treatment is absorbing, whether it is binary or continuous. Based on your inputs, you land on a leaf with the primary recommended method, alternatives, identifying assumptions, caveats, the relevant R package, and a minimal code snippet.</p>
+<p>The app was built as a heuristic for students working on causal inference with panel data, in response to the dizzying pace of the recent literature on difference-in-differences-style estimators and their extensions. <strong>It is a work in progress</strong> — if you find a mistake, a missing method, or have a suggestion, please <a href="https://github.com/RobertoValli/practitioner_guide_did/issues">open an issue</a>.</p>
 </section>
 <section id="the-decision-tree" class="level2">
 <h2 class="anchored" data-anchor-id="the-decision-tree">The decision tree</h2>
+<iframe src="tree/" style="width:100%; height:820px; border:1px solid #ccc; border-radius:4px;" loading="lazy" title="Panel-data decision tree (interactive)">
+</iframe>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -219,8 +184,6 @@ window.Quarto = {
 <p>The tree runs entirely in your browser via WebAssembly. The first load takes 10–20 seconds while R bootstraps; refreshing reuses the cache.</p>
 </div>
 </div>
-<iframe src="tree/" style="width:100%; height:820px; border:1px solid #ccc; border-radius:4px;" loading="lazy" title="Panel-data decision tree (interactive)">
-</iframe>
 <p>If the embedded version does not load, <a href="tree/">open the app in a new tab</a>.</p>
 </section>
 <section id="how-to-use-it" class="level2">
@@ -231,44 +194,6 @@ window.Quarto = {
 <li><strong>Use the breadcrumb at the top</strong> to backtrack one step, or the <em>Start over</em> button to reset.</li>
 <li><strong>Compare a few branches.</strong> If your data structure is borderline (e.g. <em>almost</em> absorbing, <em>almost</em> common timing), walk both branches and compare the recommendations. Divergence is informative.</li>
 </ol>
-</section>
-<section id="what-the-tree-branches-on" class="level2">
-<h2 class="anchored" data-anchor-id="what-the-tree-branches-on">What the tree branches on</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Question</th>
-<th>Why it matters</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>How many units are ever treated?</strong></td>
-<td>One <span class="math inline">\(\Rightarrow\)</span> synthetic-control family. A few <span class="math inline">\(\Rightarrow\)</span> synthetic DiD. Ten or more <span class="math inline">\(\Rightarrow\)</span> standard DiD machinery. All units treated <span class="math inline">\(\Rightarrow\)</span> you need an extra source of variation (a baseline factor, an ineligible subgroup).</td>
-</tr>
-<tr class="even">
-<td><strong>Binary or continuous treatment?</strong></td>
-<td>Continuous-dose designs require a different estimand (a dose-response curve, not a scalar) and different estimators.</td>
-</tr>
-<tr class="odd">
-<td><strong>Absorbing or non-absorbing?</strong></td>
-<td>Once-treated-always-treated unlocks Callaway–Sant’Anna, Sun–Abraham, Borusyak imputation, stacked DiD. Switchers / reversals require <em>fect</em> or DIDmultiplegt-style estimators.</td>
-</tr>
-<tr class="even">
-<td><strong>Staggered or common timing?</strong></td>
-<td>Heterogeneity-robust estimators are required under staggered adoption; plain TWFE is unbiased only under common timing.</td>
-</tr>
-<tr class="odd">
-<td><strong>Conditional or unconditional parallel trends?</strong></td>
-<td>Doubly robust adjustments (Callaway–Sant’Anna with covariates, Sant’Anna–Zhao DR) when treated and control differ on observables that drive trends.</td>
-</tr>
-</tbody>
-</table>
-<p>When the design admits no DiD-style answer (no untreated contrast and no extra leverage), the tree says so explicitly — and points you toward the relevant hybrid designs.</p>
 </section>
 <section id="citing-this-tool" class="level2">
 <h2 class="anchored" data-anchor-id="citing-this-tool">Citing this tool</h2>
